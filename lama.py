@@ -85,10 +85,12 @@ class Level1(ScrollableLayer):
 
         # And, just like last time, we make our sprite and have it do the action we define
         self.sprite = Sprite(pyglet.image.load_animation("assets/img/level1.gif"))
-        self.sprite.position = 300, 300
+        self.sprite.position = 350, 250
+        self.sprite.scale = 2.3
         self.add(self.sprite)
         #self.sprite.do(GameAction())
 
+level = Level1()
 
 # The first thing we do in our "main" code is make the layer we just defined
 player = Lama()
@@ -114,19 +116,8 @@ player.sprite.position = player_rect.center
 # Then I add the sprite, and set the z to 1 so that it shows on top of the map layer
 scroller.add(player, z=1)
 
-
-# Same for level
-level = Level1()
-#level_rect = level.sprite.get_rect()
-#level.sprite.position = level_rect.center
-#scroller.add(level, z=0)
-
-# Then I make a scene
 scene = Scene()
-# And I add the scroller to it and put it on top of the stack of layers
 scene.add(scroller, z=1)
 scene.add(level, z=0)
-
-# And I add the background color (I don't need to define a z because by default it's 0)
 
 director.run(scene)
