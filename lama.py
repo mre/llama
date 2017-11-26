@@ -1,101 +1,98 @@
-from cocos.sprite import Sprite
-from cocos.mapcolliders import RectMapCollider
-from cocos.layer import ScrollingManager, ScrollableLayer
+import cocos
 from cocos.director import director
 from cocos.scene import Scene
-from cocos.actions import Action
+from cocos.layer import ColorLayer
+from cocos.sprite import Sprite
+
+import cocos.collision_model as cm
+import cocos.euclid as eu
+
+from collections import defaultdict
 from pyglet.window import key
 import pyglet
 
 WIDTH = 700
 HEIGHT = 500
-keyboard = key.KeyStateHandler()
 
-class Lama(ScrollableLayer):
+
+class Background(Sprite):
     def __init__(self):
-        super(Lama, self).__init__()
-
-        self.sprite = Sprite(pyglet.image.load_animation("assets/img/lama_jump.gif"))
-        self.sprite.position = 150, 100
-        self.add(self.sprite)
-        self.sprite.do(GameAction())
+        super(Background, self).__init__(pyglet.image.load_animation("assets/img/level1.gif"))
+        self.position = 350, 250
+        self.scale = 2.3
 
 
-class Block(ScrollableLayer):
-    def __init__(self):
-        super(Block, self).__init__()
-
-        self.sprite = Sprite("assets/img/block.png")
-        self.sprite.position = 150, 150
-        self.sprite.scale = 0.4
-        self.add(self.sprite)
+class Block(Sprite):
+    def __init__(self, x, y, pic):
+        super(Block, self).__init__(pic)
+        self.position = pos = eu.Vector2(x, y)
+        self.cshape = cm.CircleShape(pos, self.width / 2 - 10)
 
 
-class Level(ScrollableLayer):
-    def __init__(self):
-        super(Level, self).__init__()
+class Lama(Sprite):
+    def __init__(self, x, y, pic):
+        super(Lama, self).__init__(pic)
+        self.position = pos = eu.Vector2(x, y)
+        self.cshape = cm.CircleShape(pos, self.width / 2 - 10)
+        self.speed = 300.0
 
-        self.sprite = Sprite(pyglet.image.load_animation("assets/img/level1.gif"))
-        self.sprite.position = 350, 250
-        self.sprite.scale = 2.3
-        self.add(self.sprite)
-
-
-class GameAction(Action, RectMapCollider):
-    # Use the start function instead of  __init__
-    # because of the way the Action parent class is structured
-    def start(self):
-        self.target.velocity = 0, 0
+    def move(self, dx, dy):
+        x, y = self.position
+        self.position = (x + dx, y + dy)
+        self.cshape.center = self.position
 
     def on_ground(self):
-        rect = self.target.get_rect()
-        return rect.y <= 0
+        x, y = self.position
+        return y <= 80
 
-    def on_bump_handler(self, vx, vy):
-        return vx, vy
 
-    def step(self, dt):
-        dx = self.target.velocity[0]
-        dy = self.target.velocity[1]
+class Game(ColorLayer):
+    is_event_handler = True
 
-        # Combine the left and right values and amplify them so it's visible
-        dx = (keyboard[key.RIGHT] - keyboard[key.LEFT]) * 250 * dt
+    def __init__(self):
+        super(Game, self).__init__(0, 80, 125, 0)
 
-        if self.on_ground() and keyboard[key.SPACE]:
-            dy = 4500
+        self.block_pic = "assets/img/block.png"
+        for pos in [(100, 100), (540, 380), (540, 100), (100, 380)]:
+            self.add(Block(pos[0], pos[1], self.block_pic))
+        self.lama = Lama(120, 100, pyglet.image.load_animation("assets/img/lama_jump.gif"))
+        self.add(self.lama)
 
-        # What we do here may seem a bit odd, but it essentially acts as gravity for the target
-        if not self.on_ground():
-            dy -= 7500 * dt
+        cell = self.lama.width * 1.25
+        self.collman = cm.CollisionManagerGrid(0, 640, 0, 480, cell, cell)
 
-        # Collision code
-        # Get bounding rectangle for last frame
-        last_rect = self.target.get_rect()
+        self.pressed = defaultdict(int)
+        self.schedule(self.update)
 
-        # Create new rect for modification
-        new_rect = last_rect.copy()
-        new_rect.x += dx
-        new_rect.y += dy * dt
+    def on_key_press(self, k, m):
+        self.pressed[k] = 1
 
-        # Now we need to anchor the position of the target to the middle of the bounding rectangle (or else the target won't move)
-        self.target.position = new_rect.center
+    def on_key_release(self, k, m):
+        self.pressed[k] = 0
 
+    def update(self, dt):
+        self.collman.clear()
+        for _, node in self.children:
+            self.collman.add(node)
+        for other in self.collman.iter_colliding(self.lama):
+            self.remove(other)
+
+        dx = (self.pressed[key.RIGHT] - self.pressed[key.LEFT]) * 250 * dt
+
+        dy = 0
+        if self.lama.on_ground():
+            if self.pressed[key.SPACE]:
+                dy = 100
+        else:
+            dy -= 300 * dt
+        self.lama.move(dx, dy)
 
 
 def main():
-    director.init(caption="LAMA", width=WIDTH, height=HEIGHT, autoscale=False, resizable=False)
-    director.window.push_handlers(keyboard)
-
+    director.init(caption="Lama!!!", width=WIDTH, height=HEIGHT)
     scene = Scene()
-
-    player = Lama()
-    block = Block()
-    level = Level()
-
-    scene.add(player, z=1)
-    scene.add(block, z=1)
-    scene.add(level, z=0)
-
+    scene.add(Background(), z=0)
+    scene.add(Game(), z=1)
     director.run(scene)
 
 
