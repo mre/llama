@@ -30,16 +30,21 @@ class Block(Sprite):
 
 
 class Lama(Sprite):
-    def __init__(self, x, y, pic):
-        super(Lama, self).__init__(pic)
+    def __init__(self, x, y):
+        super(Lama, self).__init__(pyglet.image.load_animation("assets/img/lama_jump.gif"))
         self.position = pos = eu.Vector2(x, y)
         self.cshape = cm.CircleShape(pos, self.width / 2 - 10)
-        self.speed = 300.0
+        self.speed = 1.0
+        self.strength = 1.0
 
     def move(self, dx, dy):
         x, y = self.position
-        self.position = (x + dx, y + dy)
+        self.position = (x + self.speed * dx, y + self.strength * dy)
         self.cshape.center = self.position
+
+    def powerup(self):
+        self.speed += self.speed * 0.3
+        self.strength += self.strength * 0.3
 
     def on_ground(self):
         x, y = self.position
@@ -55,7 +60,7 @@ class Game(ColorLayer):
         self.block_pic = "assets/img/block.png"
         for pos in [(100, 100), (540, 380), (540, 100), (100, 380)]:
             self.add(Block(pos[0], pos[1], self.block_pic))
-        self.lama = Lama(120, 100, pyglet.image.load_animation("assets/img/lama_jump.gif"))
+        self.lama = Lama(120, 100)
         self.add(self.lama)
 
         cell = self.lama.width * 1.25
@@ -76,13 +81,13 @@ class Game(ColorLayer):
             self.collman.add(node)
         for other in self.collman.iter_colliding(self.lama):
             self.remove(other)
+            self.lama.powerup()
 
         dx = (self.pressed[key.RIGHT] - self.pressed[key.LEFT]) * 250 * dt
-
         dy = 0
         if self.lama.on_ground():
             if self.pressed[key.SPACE]:
-                dy = 100
+                dy = 150
         else:
             dy -= 300 * dt
         self.lama.move(dx, dy)
