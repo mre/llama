@@ -39,9 +39,11 @@ class Background(Sprite):
         self.position = 350, 250
         self.scale = 2.3
 
-    def drunk(self):
-        self.do(Reverse(Waves(duration=2000)))
-
+class Final(Sprite):
+    def __init__(self):
+        super(Final, self).__init__(pyglet.image.load_animation("assets/img/final.gif"))
+        self.position = 350, 250
+        #self.scale = 2.3
 
 class Block(Sprite):
     def __init__(self, x, y, pic):
@@ -115,7 +117,7 @@ class Game(ColorLayer):
             self.kiss_sound.play()
 
         if len(self.children) <= 1:
-            pass
+            self.show_finish_screen()
 
         dx = (self.pressed[key.RIGHT] - self.pressed[key.LEFT]) * 250 * dt
         dy = 0
@@ -127,6 +129,9 @@ class Game(ColorLayer):
             dy -= 300 * dt
         self.lama.move(dx, dy)
 
+    def show_finish_screen(self):
+        background = Final()
+        director.replace(Scene(background))
 
 def main():
     mixer.init()
