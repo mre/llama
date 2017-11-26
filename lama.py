@@ -10,12 +10,8 @@ import pyglet
 
 WIDTH = 700
 HEIGHT = 500
-
-director.init(width=WIDTH, height=HEIGHT, autoscale=False, resizable=False)
-
-scroller = ScrollingManager()
 keyboard = key.KeyStateHandler()
-director.window.push_handlers(keyboard)
+
 
 class GameAction(Action, RectMapCollider):
     # Use the start function instead of  __init__
@@ -110,39 +106,49 @@ class Level(ScrollableLayer):
         self.add(self.sprite)
         #self.sprite.do(GameAction())
 
-level = Level()
 
-block = Block()
+def main():
+    director.init(caption = "LAMA", width=WIDTH, height=HEIGHT, autoscale=False, resizable=False)
+
+    scroller = ScrollingManager()
+    director.window.push_handlers(keyboard)
 
 
+    # The first thing we do in our "main" code is make the layer we just defined
+    player = Lama()
 
-# The first thing we do in our "main" code is make the layer we just defined
-player = Lama()
+    # Now here's some more code we haven't done before
+    # Essentially, we need to find the cell where I marked for the player to start, and set the sprite as starting there
+    # We do this by first finding that cell I marked (check the source code of the map to see how it's done)
+    # start = map_layer.find_cells(player_start=True)[0]
 
-# Now here's some more code we haven't done before
-# Essentially, we need to find the cell where I marked for the player to start, and set the sprite as starting there
-# We do this by first finding that cell I marked (check the source code of the map to see how it's done)
-# start = map_layer.find_cells(player_start=True)[0]
+    # Then I get that bounded rectangle we talked about earlier from the sprite
+    player_rect = player.sprite.get_rect()
 
-# Then I get that bounded rectangle we talked about earlier from the sprite
-player_rect = player.sprite.get_rect()
+    # After that I set the middle bottom of the sprite's bounded rectangle equal to the middle bottom of the start cell
+    #player_rect.midbottom = start.midbottom
 
-# After that I set the middle bottom of the sprite's bounded rectangle equal to the middle bottom of the start cell
-#player_rect.midbottom = start.midbottom
+    # And lastly I set the position of the sprite to the center of the rectangle
+    player.sprite.position = player_rect.center
 
-# And lastly I set the position of the sprite to the center of the rectangle
-player.sprite.position = player_rect.center
+    # From here it's pretty easy sailing
+    # First I add the map, and set the "z" to 0
+    # The z is the vertical axis, so the highest z value layer will always show on top of the others
 
-# From here it's pretty easy sailing
-# First I add the map, and set the "z" to 0
-# The z is the vertical axis, so the highest z value layer will always show on top of the others
+    # Then I add the sprite, and set the z to 1 so that it shows on top of the map layer
+    scroller.add(player, z=1)
 
-# Then I add the sprite, and set the z to 1 so that it shows on top of the map layer
-scroller.add(player, z=1)
+    scene = Scene()
+    scene.add(scroller, z=1)
 
-scene = Scene()
-scene.add(scroller, z=1)
-scene.add(level, z=0)
-scene.add(block, z=0)
+    block = Block()
+    scene.add(block, z=1)
 
-director.run(scene)
+    level = Level()
+    scene.add(level, z=0)
+
+    director.run(scene)
+
+
+if __name__ == "__main__":
+    main()
