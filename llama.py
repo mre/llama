@@ -96,7 +96,7 @@ class Game(ColorLayer):
         self.pressed = defaultdict(int)
         self.schedule(self.update)
 
-        #self.kiss_sound = Sound("assets/sound/kiss.ogg")
+        self.kiss_sound = Sound("assets/sound/kiss.ogg")
         self.jump_sound = Sound("assets/sound/jump.ogg")
 
     def on_key_press(self, k, m):
@@ -112,7 +112,7 @@ class Game(ColorLayer):
         for other in self.collman.iter_colliding(self.lama):
             self.remove(other)
             self.lama.powerup()
-            #self.kiss_sound.play()
+            self.kiss_sound.play()
 
         if len(self.children) <= 1:
             pass
