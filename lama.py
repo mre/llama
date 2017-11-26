@@ -21,7 +21,7 @@ class GameAction(Action, RectMapCollider):
 
     def on_ground(self):
         rect = self.target.get_rect()
-        return rect.y <=  -200
+        return rect.y <= -200
 
     def on_bump_handler(self, vx, vy):
         return vx, vy
@@ -54,34 +54,14 @@ class GameAction(Action, RectMapCollider):
         # self.target.velocity = self.collide_map(map_layer, last_rect, new_rect, dy, dx)
 
         # If the y position hasn't changed, we know that we have not moved off the ground!
-        #self.on_ground = bool(new_rect.y == last_rect.y)
+        # self.on_ground = bool(new_rect.y == last_rect.y)
 
         # Now we need to anchor the position of the target to the middle of the bounding rectangle (or else the target won't move)
         self.target.position = new_rect.center
 
         # Set focus of the scroller to center of player (which is the center of the rect)
         # The * sets the argument passed in as all of the required parameters
-        #scroller.set_focus(*new_rect.center)
-
-# class BlockAction(Action, RectMapCollider):
-#     # Use the start function instead of  __init__
-#     # because of the way the Action parent class is structured
-#     def start(self):
-#         pass
-#
-#     def step(self, dt):
-
-
-
-class Block(ScrollableLayer):
-    def __init__(self):
-        super(Block, self).__init__()
-
-        # And, just like last time, we make our sprite and have it do the action we define
-        self.sprite = Sprite("assets/img/block.png")
-        self.sprite.position = 150, 150
-        self.sprite.scale = 0.4
-        self.add(self.sprite)
+        # scroller.set_focus(*new_rect.center)
 
 
 # Now, once again, we make another class for the sprite's layer
@@ -95,6 +75,18 @@ class Lama(ScrollableLayer):
         self.add(self.sprite)
         self.sprite.do(GameAction())
 
+
+class Block(ScrollableLayer):
+    def __init__(self):
+        super(Block, self).__init__()
+
+        # And, just like last time, we make our sprite and have it do the action we define
+        self.sprite = Sprite("assets/img/block.png")
+        self.sprite.position = 150, 150
+        self.sprite.scale = 0.4
+        self.add(self.sprite)
+
+
 class Level(ScrollableLayer):
     def __init__(self):
         super(Level, self).__init__()
@@ -104,15 +96,13 @@ class Level(ScrollableLayer):
         self.sprite.position = 350, 250
         self.sprite.scale = 2.3
         self.add(self.sprite)
-        #self.sprite.do(GameAction())
 
 
 def main():
-    director.init(caption = "LAMA", width=WIDTH, height=HEIGHT, autoscale=False, resizable=False)
+    director.init(caption="LAMA", width=WIDTH, height=HEIGHT, autoscale=False, resizable=False)
 
     scroller = ScrollingManager()
     director.window.push_handlers(keyboard)
-
 
     # The first thing we do in our "main" code is make the layer we just defined
     player = Lama()
@@ -126,7 +116,7 @@ def main():
     player_rect = player.sprite.get_rect()
 
     # After that I set the middle bottom of the sprite's bounded rectangle equal to the middle bottom of the start cell
-    #player_rect.midbottom = start.midbottom
+    # player_rect.midbottom = start.midbottom
 
     # And lastly I set the position of the sprite to the center of the rectangle
     player.sprite.position = player_rect.center
