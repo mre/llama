@@ -67,6 +67,26 @@ class GameAction(Action, RectMapCollider):
         # The * sets the argument passed in as all of the required parameters
         #scroller.set_focus(*new_rect.center)
 
+# class BlockAction(Action, RectMapCollider):
+#     # Use the start function instead of  __init__
+#     # because of the way the Action parent class is structured
+#     def start(self):
+#         pass
+#
+#     def step(self, dt):
+
+
+
+class Block(ScrollableLayer):
+    def __init__(self):
+        super(Block, self).__init__()
+
+        # And, just like last time, we make our sprite and have it do the action we define
+        self.sprite = Sprite("assets/img/block.png")
+        self.sprite.position = 150, 150
+        self.sprite.scale = 0.4
+        self.add(self.sprite)
+
 
 # Now, once again, we make another class for the sprite's layer
 # Remember that it must be a ScrollableLayer
@@ -79,9 +99,9 @@ class Lama(ScrollableLayer):
         self.add(self.sprite)
         self.sprite.do(GameAction())
 
-class Level1(ScrollableLayer):
+class Level(ScrollableLayer):
     def __init__(self):
-        super(Level1, self).__init__()
+        super(Level, self).__init__()
 
         # And, just like last time, we make our sprite and have it do the action we define
         self.sprite = Sprite(pyglet.image.load_animation("assets/img/level1.gif"))
@@ -90,7 +110,11 @@ class Level1(ScrollableLayer):
         self.add(self.sprite)
         #self.sprite.do(GameAction())
 
-level = Level1()
+level = Level()
+
+block = Block()
+
+
 
 # The first thing we do in our "main" code is make the layer we just defined
 player = Lama()
@@ -119,5 +143,6 @@ scroller.add(player, z=1)
 scene = Scene()
 scene.add(scroller, z=1)
 scene.add(level, z=0)
+scene.add(block, z=0)
 
 director.run(scene)
