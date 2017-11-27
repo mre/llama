@@ -142,6 +142,7 @@ def main():
     scene.add(Background(), z=0)
     scene.add(Game(), z=1)
     director.run(scene)
+    director.show_FPS()
 
 
 if __name__ == "__main__":
