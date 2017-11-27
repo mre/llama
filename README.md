@@ -4,7 +4,7 @@
 
 # Wtf?
 
-This was my hackathon project for the PyDDF Düsseldorf sprint 2017.
+This was my hackathon project for the PyDDF Düsseldorf sprint 2017.  
 It is written in Python using cocos2d.
 
 # Installation
