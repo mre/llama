@@ -1,6 +1,6 @@
 ## Llama!
 
-![llama-preview.gif](llama game perview)
+![Game preview](llama-preview.gif)
 
 # Installation
 
